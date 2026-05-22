@@ -1,5 +1,3 @@
-
-# ------- Function for transforming points into lines
 points_to_line <- function(data, long, lat, id_field = NULL, sort_field = NULL) {
   # Convert to SpatialPointsDataFrame
   # If there is a sort field...
@@ -30,20 +28,16 @@ points_to_line <- function(data, long, lat, id_field = NULL, sort_field = NULL) 
     sf::st_crs(sp_lines) <- 4326
     alternative <- paths[[1]][[id_field]][1]
     
-    sp_lines <- sf::st_sf(geometry = sp_lines,alternative = alternative)
+    sp_lines <- sf::st_sf(geometry = sp_lines, alternative = alternative)
     for (p in 2:length(paths)) {
       #l <- sf::st_linestring(as.matrix(paths[[p]][, c("long", "lat")]))
       l <- sf::st_linestring(as.matrix(paths[[p]][, c(long, lat)]))
       l <- sf::st_sfc(l)
       sf::st_crs(l) <- 4326
       alternative <- paths[[p]][[id_field]][1]
-      sp_lines2 <- sf::st_sf(geometry = l,alternative = alternative)
+      sp_lines2 <- sf::st_sf(geometry = l, alternative = alternative)
       sp_lines <- rbind(sp_lines, sp_lines2)
     }
     return(sp_lines)
   }
 }
-
-
-
-
