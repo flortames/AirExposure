@@ -1,0 +1,33 @@
+Package: AirExposure
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+Authors@R: c(
+    person(
+      given = "Maria Florencia",
+      family = "Tames",
+      email = "mftames@unc.edu.ar",
+      role = c("aut", "cre"),
+      comment = c(ORCID = "0000-0003-3304-3376")
+    ),
+    person(
+      given = "Josefina",
+      family = "Urquiza",
+      role = c("aut", "cre")
+    ),
+    person(
+      given = "Maela",
+      family = "Lupo",
+      role = "aut"
+    ),
+    person(
+      given = "Alfredo",
+      family = "Rigalli",
+      role = "aut"
+    )
+)
+Description: What the package does (one paragraph).
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 8.0.0
