@@ -3,34 +3,49 @@
 AirExposure is an R package for estimating individual exposure to air
 pollution using both fixed-location and mobility-based approaches.
 
-The package integrates information on daily mobility, activity schedules,
-travel routes, and hourly pollutant concentrations to estimate personal
-exposure in urban environments.
+The package integrates information on daily mobility, activity
+schedules, travel routes, and hourly pollutant concentrations to
+estimate personal exposure in urban environments and compare traditional
+and dynamic exposure assessment methods.
+
+## Installation
+
+```r
+remotes::install_github("flortames/AirExposure")
+```
+
+## Main features
+
+- Retrieve hourly pollutant concentration grids.
+- Aggregate pollutant concentrations over user-defined time periods.
+- Compare alternative travel routes using air pollution information.
+- Estimate daily exposure using a Dynamic Exposure Method (DEM).
+- Estimate daily exposure using a Fixed-Location-Based Method (FLBM).
+- Compare mobility-based and fixed-location exposure estimates.
+- Integrate routing information from the TomTom Routing API.
 
 ## Mendoza case-study dataset
 
 The hourly PM2.5 concentration grids used in the Mendoza (Argentina)
 case study are publicly available through Zenodo:
 
-**DOI:** https://doi.org/10.5281/zenodo.22797605
+**DOI:** [Mendoza PM2.5 dataset](https://doi.org/10.5281/zenodo.22797605)
 
 The dataset contains 24 hourly PM2.5 concentration grids corresponding
 to 1 August 2019 and is used throughout the package documentation and
 vignettes.
 
-## Main features
+## Vignette
 
-- Estimation of daily exposure using dynamic mobility patterns.
-- Comparison of alternative travel routes.
-- Integration with the TomTom Routing API.
-- Estimation of hourly and daily pollutant exposure.
-- Comparison between dynamic and fixed-location exposure models.
+A complete workflow describing dynamic PM2.5 exposure assessment in the
+Mendoza Metropolitan Area is available through the package vignette:
 
-## Package structure
+- *Dynamic PM2.5 Exposure Assessment in Mendoza Metropolitan Area*
 
-- `R/` contains all package functions.
-- `tests/` contains the automated unit tests.
-- `man/` contains the generated documentation.
+## Citation
+
+If you use AirExposure in your work, please consider citing the related
+publications listed below.
 
 ## Related publications
 
