@@ -45,6 +45,9 @@ Imports:
     sp,
     sf
 Suggests:
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0),
     webmockr
 Config/testthat/edition: 3
+VignetteBuilder: knitr
