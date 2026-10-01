@@ -1,0 +1,39 @@
+url: https://flortames.github.io/AirExposure/
+
+template:
+  bootstrap: 5
+
+reference:
+  - title: Pollutant grids
+    desc: Functions for creating, locating, processing, and classifying pollutant grids.
+    contents:
+     - make_grid
+     - hourly_grid
+     - temporary_grid_search
+     - map_colors
+
+  - title: Routes and mobility
+    desc: Functions for constructing and comparing travel routes.
+    contents:
+      - points_to_line
+      - trajectories_tomtom
+      - alternative_trajectories
+
+  - title: Exposure assessment
+    desc: Functions for estimating fixed-location and mobility-based exposure.
+    contents:
+      - traditional_model
+      - total_exposure
+
+  - title: Utilities
+    desc: Supporting functions used in exposure workflows.
+    contents:
+      - function_hours
+
+navbar:
+  structure:
+    left: [home, reference, articles]
+    right: [github]
+
+home:
+  title: AirExposure

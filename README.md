@@ -1,5 +1,7 @@
 # AirExposure
 
+<img src="man/figures/logo.png" align="right" width="220"
+
 AirExposure is an R package for estimating individual exposure to air
 pollution using both fixed-location and mobility-based approaches.
 
@@ -22,18 +24,7 @@ remotes::install_github("flortames/AirExposure")
 - Estimate daily exposure using a Dynamic Exposure Method (DEM).
 - Estimate daily exposure using a Fixed-Location-Based Method (FLBM).
 - Compare mobility-based and fixed-location exposure estimates.
-- Integrate routing information from the TomTom Routing API.
-
-## Mendoza case-study dataset
-
-The hourly PM2.5 concentration grids used in the Mendoza (Argentina)
-case study are publicly available through Zenodo:
-
-**DOI:** [Mendoza PM2.5 dataset](https://doi.org/10.5281/zenodo.22797605)
-
-The dataset contains 24 hourly PM2.5 concentration grids corresponding
-to 1 August 2019 and is used throughout the package documentation and
-vignettes.
+- Assess exposure along alternative travel routes.
 
 ## Vignette
 
@@ -41,6 +32,18 @@ A complete workflow describing dynamic PM2.5 exposure assessment in the
 Mendoza Metropolitan Area is available through the package vignette:
 
 - *Dynamic PM2.5 Exposure Assessment in Mendoza Metropolitan Area*
+
+## Mendoza case study
+
+The package documentation and vignette include a case study based on
+hourly PM2.5 concentration grids from the Mendoza Metropolitan Area
+(Argentina). The grids used for the case study are publicly available through
+Zenodo:
+
+**DOI:** [Mendoza PM2.5 dataset](https://doi.org/10.5281/zenodo.22797605)
+
+The dataset contains 24 hourly PM2.5 concentration grids corresponding
+to 1 August 2019.
 
 ## Citation
 
