@@ -1,0 +1,9 @@
+pandoc: 3.8.3
+pkgdown: 2.2.1
+pkgdown_sha: ~
+articles:
+  dynamic-pm25-exposure-mendoza: dynamic-pm25-exposure-mendoza.html
+last_built: 2026-10-01T13:19Z
+urls:
+  reference: https://flortames.github.io/AirExposure/reference
+  article: https://flortames.github.io/AirExposure/articles
