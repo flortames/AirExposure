@@ -1,7 +1,5 @@
 # AirExposure
 
-<img src="man/figures/logo.png" align="right" width="220"
-
 AirExposure is an R package for estimating individual exposure to air
 pollution using both fixed-location and mobility-based approaches.
 
