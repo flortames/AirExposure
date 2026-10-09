@@ -10,9 +10,19 @@ and dynamic exposure assessment methods.
 
 ## Installation
 
+The development version of AirExposure can be installed directly from
+GitHub:
+
 ``` r
 
 remotes::install_github("flortames/AirExposure")
+```
+
+After installation, load the package with:
+
+``` r
+
+library(AirExposure)
 ```
 
 ## Main features
