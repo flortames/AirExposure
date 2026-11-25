@@ -14,8 +14,8 @@
             }
           ],
           "summary": {
-            "departureTime": "2019-08-01T08:00:00",
-            "arrivalTime": "2019-08-01T08:15:00",
+            "departureTime": "2019-08-01T08:00:00-03:00",
+            "arrivalTime": "2019-08-01T08:15:00-03:00",
             "lengthInMeters": 10000,
             "trafficLengthInMeters": 8000,
             "trafficDelayInSeconds": 120,

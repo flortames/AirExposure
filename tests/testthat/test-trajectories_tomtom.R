@@ -85,7 +85,7 @@ test_that("transport mode must be supported", {
   )
 })
 
-test_that("hour_trajectory must be a character string", {
+test_that("hour_trajectory must be a valid date-time input", {
   expect_error(
     trajectories_tomtom(
       origin = "-31,-64",
@@ -94,7 +94,7 @@ test_that("hour_trajectory must be a character string", {
       hour_trajectory = 123,
       key = "fake"
     ),
-    "hour_trajectory.*character string"
+    "must be a POSIXct, POSIXlt, or character value"
   )
 })
 
@@ -105,7 +105,8 @@ test_that("hour_trajectory must have the expected format", {
       dest = "-31.5,-64.5",
       mode = "car",
       hour_trajectory = "not-a-date",
-      key = "fake"
+      key = "fake",
+      tz = "UTC"
     ),
     "could not be parsed"
   )
@@ -145,7 +146,8 @@ test_that("processes a mocked TomTom response", {
     dest = "-31.4300,-64.2000",
     mode = "car",
     hour_trajectory = "2019-08-01 08:00:00",
-    key = "fake-key"
+    key = "fake-key",
+    tz = "America/Argentina/Mendoza"
   )
   
   expect_s3_class(result, "data.frame")
@@ -164,5 +166,18 @@ test_that("processes a mocked TomTom response", {
         "alternative"
       ) %in% names(result)
     )
+  )
+  
+  expect_s3_class(result$departureTime, "POSIXct")
+  expect_s3_class(result$arrivalTime, "POSIXct")
+  
+  expect_equal(
+    lubridate::tz(result$departureTime),
+    "UTC"
+  )
+  
+  expect_equal(
+    lubridate::tz(result$arrivalTime),
+    "UTC"
   )
 })

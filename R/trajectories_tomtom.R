@@ -12,8 +12,14 @@
 #' @param mode Character. Travel mode accepted by the TomTom Routing API.
 #'   Supported values are `"car"`, `"truck"`, `"pedestrian"`, `"bicycle"`
 #'   and `"motorcycle"`.
-#' @param hour_trajectory Character. Departure date and time in the format
-#'   `"YYYY-mm-dd HH:MM:SS"`.
+#' @param hour_trajectory Departure date and time. A `POSIXct` or `POSIXlt`
+#'   object is recommended. Character values may also be supplied in RFC 3339
+#'   format with an explicit offset, such as
+#'   `"2019-08-01T08:00:00-03:00"`. Character values without an explicit
+#'   offset require `tz`.
+#' @param tz Optional character. Time-zone name used to interpret character
+#'   values in `hour_trajectory` that do not include an explicit offset,
+#'   for example `"America/Argentina/Mendoza"`.
 #' @param key Character. Valid TomTom Routing API key.
 #'
 #' @details
@@ -53,9 +59,9 @@
 #'   dest = "-31.4300,-64.2000",
 #'   mode = "car",
 #'   hour_trajectory = "2019-08-01 08:00:00",
-#'   key = "YOUR_API_KEY"
+#'   key = Sys.getenv("TOMTOM_KEY"),
+#'   tz = "America/Argentina/Cordoba"
 #' )
-#' }
 #'
 #' @export
 
@@ -64,7 +70,8 @@ trajectories_tomtom <- function(
   dest,
   mode,
   hour_trajectory,
-  key
+  key,
+  tz = NULL
 ) {
   if (missing(origin) || missing(dest)) {
     stop("'origin' and 'dest' must be provided.")
@@ -117,65 +124,31 @@ trajectories_tomtom <- function(
     )
   }
 
-  if (
-    !is.character(hour_trajectory) ||
-      length(hour_trajectory) != 1 ||
-      is.na(hour_trajectory)
-  ) {
-    stop("'hour_trajectory' must be a character string.")
-  }
-
   num_alternative <- 5
-
-  hour_trajectory <- as.POSIXct(
-    strptime(
-      hour_trajectory,
-      format = "%Y-%m-%d %H:%M:%S"
-    )
-  )
-
-  if (is.na(hour_trajectory)) {
+  
+  if (length(hour_trajectory) != 1) {
     stop(
-      "'hour_trajectory' could not be parsed. ",
-      "Expected format: 'YYYY-mm-dd HH:MM:SS'."
+      "'hour_trajectory' must contain exactly one date-time value.",
+      call. = FALSE
     )
   }
-
-  day <- substr(hour_trajectory, 1, 10)
-  hours <- substr(hour_trajectory, 12, 13)
-  minutes <- substr(hour_trajectory, 15, 16)
-
-  zone_tot <- substr(format(hour_trajectory, "%z"), 1, 3)
-
-  if (substr(zone_tot, 1, 1) == "-") {
-    zone <- substr(format(hour_trajectory, "%z"), 1, 3)
-
-    hour_format <- paste(
-      day,
-      "T",
-      hours,
-      "%3A",
-      minutes,
-      "%3A00",
-      zone,
-      "%3A00",
-      sep = ""
-    )
-  } else {
-    zone <- substr(format(hour_trajectory, "%z"), 2, 3)
-
-    hour_format <- paste(
-      day,
-      "T",
-      hours,
-      "%3A",
-      minutes,
-      "%3A00%2B",
-      zone,
-      "%3A00",
-      sep = ""
-    )
-  }
+  
+  departure_time_utc <- normalize_datetime(
+    hour_trajectory,
+    tz = tz,
+    arg = "hour_trajectory"
+  )
+  
+  departure_time_rfc3339 <- format(
+    departure_time_utc,
+    format = "%Y-%m-%dT%H:%M:%SZ",
+    tz = "UTC"
+  )
+  
+  hour_format <- utils::URLencode(
+    departure_time_rfc3339,
+    reserved = TRUE
+  )
 
   origin_lat <- strsplit(origin, ",")[[1]][1]
   origin_long <- strsplit(origin, ",")[[1]][2]
@@ -324,5 +297,15 @@ trajectories_tomtom <- function(
     "alternative"
   )
 
+  df_rbind_output$departureTime <- normalize_datetime(
+    df_rbind_output$departureTime,
+    arg = "departureTime returned by TomTom"
+  )
+  
+  df_rbind_output$arrivalTime <- normalize_datetime(
+    df_rbind_output$arrivalTime,
+    arg = "arrivalTime returned by TomTom"
+  )
+  
   return(df_rbind_output)
 }
