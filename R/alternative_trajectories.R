@@ -16,11 +16,15 @@
 #' @param mode Character. Travel mode accepted by the TomTom Routing API.
 #'   Supported values are `"car"`, `"truck"`, `"pedestrian"`, `"bicycle"`
 #'   and `"motorcycle"`.
-#' @param hours Character. Departure date and time in the format
-#'   `"YYYY-mm-dd HH:MM:SS"`.
+#' @param hours Departure date and time. A `POSIXct` or `POSIXlt` object
+#'   is recommended. Character values may also be supplied. Character values
+#'   without an explicit time-zone offset are interpreted using `grid_tz`.
 #' @param key Character. TomTom API key.
 #' @param dir Character. Directory containing the hourly pollutant grid
 #'   shapefiles.
+#' @param grid_tz Character. Time zone used by the hourly pollutant grid
+#'   filenames, specified as an Olson time-zone name such as
+#'   `"America/Argentina/Mendoza"`.
 #' @param gridID Character. Name of the grid identifier field.
 #' @param shapeValue Character. Name of the pollutant concentration field in
 #'   the grid.
@@ -29,6 +33,9 @@
 #'   (e.g., `"µg/m³"`).
 #' @param output Character. Output type. Either `"df"` to return a data frame
 #'   or `"plot"` to return an interactive `leaflet` map.
+#' @param grid_tz Character. Time zone used by the hourly pollutant grid
+#'   filenames, specified as an Olson time-zone name such as
+#'   `"America/Argentina/Mendoza"`.
 #'
 #' @details
 #' This function combines route information obtained from the TomTom Routing
@@ -75,7 +82,8 @@ alternative_trajectories <- function(
   dir,
   key,
   output,
-  hours = NULL,
+  hours,
+  grid_tz,
   gridID,
   shapeValue,
   units,
@@ -88,11 +96,12 @@ alternative_trajectories <- function(
   # Retrieve alternative routes from the TomTom Routing API
 
   trajectory <- trajectories_tomtom(
-    origin,
-    dest,
-    mode,
-    hours,
-    key
+    origin = origin,
+    dest = dest,
+    mode = mode,
+    hour_trajectory = hours,
+    key = key,
+    tz = grid_tz
   )
 
   # Convert route points to LINESTRING geometries
@@ -175,9 +184,9 @@ alternative_trajectories <- function(
 
   grid <- temporary_grid_search(
     start_hour = df3$departureTime[1],
-    end_hour = df3$arrivalTime[length(df3$arrivalTime)],
+    end_hour = max(df3$arrivalTime),
     dir = dir,
-    time_format = "%Y-%m-%dT%H:%M:%S",
+    grid_tz = grid_tz,
     gridID = gridID,
     shapeValue = shapeValue
   )

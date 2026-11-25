@@ -15,18 +15,24 @@ fake_routes <- data.frame(
     -31.4400
   ),
 
-  departureTime = c(
-    "2019-08-01T08:00:00",
-    "2019-08-01T08:00:00",
-    "2019-08-01T08:00:00",
-    "2019-08-01T08:00:00"
+  departureTime = as.POSIXct(
+    c(
+      "2019-08-01 11:00:00",
+      "2019-08-01 11:00:00",
+      "2019-08-01 11:00:00",
+      "2019-08-01 11:00:00"
+    ),
+    tz = "UTC"
   ),
-
-  arrivalTime = c(
-    "2019-08-01T08:15:00",
-    "2019-08-01T08:15:00",
-    "2019-08-01T08:20:00",
-    "2019-08-01T08:20:00"
+  
+  arrivalTime = as.POSIXct(
+    c(
+      "2019-08-01 11:15:00",
+      "2019-08-01 11:15:00",
+      "2019-08-01 11:20:00",
+      "2019-08-01 11:20:00"
+    ),
+    tz = "UTC"
   ),
 
   lengthInKM = c(10, 10, 12, 12),
@@ -191,4 +197,134 @@ test_that("returns a leaflet map when output is plot", {
   )
 
   expect_s3_class(result, "leaflet")
+})
+
+test_that("passes UTC times and grid time zone through the routing workflow", {
+  testthat::local_mocked_bindings(
+    trajectories_tomtom = function(
+    origin,
+    dest,
+    mode,
+    hour_trajectory,
+    key,
+    tz
+    ) {
+      expect_equal(
+        tz,
+        "America/Argentina/Mendoza"
+      )
+      
+      expect_equal(
+        hour_trajectory,
+        "2019-08-01 08:00:00"
+      )
+      
+      fake_routes
+    },
+    
+    temporary_grid_search = function(
+    start_hour,
+    end_hour,
+    dir,
+    grid_tz,
+    gridID,
+    shapeValue
+    ) {
+      expect_s3_class(start_hour, "POSIXct")
+      expect_s3_class(end_hour, "POSIXct")
+      
+      expect_equal(
+        lubridate::tz(start_hour),
+        "UTC"
+      )
+      
+      expect_equal(
+        lubridate::tz(end_hour),
+        "UTC"
+      )
+      
+      expect_equal(
+        grid_tz,
+        "America/Argentina/Mendoza"
+      )
+      
+      fake_grid
+    },
+    
+    .package = "AirExposure"
+  )
+  
+  alternative_trajectories(
+    origin = "-31.4201,-64.1888",
+    dest = "-31.4300,-64.2000",
+    mode = "car",
+    dir = tempdir(),
+    key = "fake",
+    output = "df",
+    hours = "2019-08-01 08:00:00",
+    grid_tz = "America/Argentina/Mendoza",
+    gridID = "ID",
+    shapeValue = "value",
+    units = "ug/m3",
+    pollutant = "PM2.5"
+  )
+})
+
+test_that("uses the latest arrival time across alternative routes", {
+  routes_unordered <- fake_routes
+  
+  routes_unordered$arrivalTime <- as.POSIXct(
+    c(
+      "2019-08-01 11:15:00",
+      "2019-08-01 11:15:00",
+      "2019-08-01 11:25:00",
+      "2019-08-01 11:20:00"
+    ),
+    tz = "UTC"
+  )
+  
+  captured_end_hour <- NULL
+  
+  testthat::local_mocked_bindings(
+    trajectories_tomtom = function(...) {
+      routes_unordered
+    },
+    
+    temporary_grid_search = function(
+    start_hour,
+    end_hour,
+    dir,
+    grid_tz,
+    gridID,
+    shapeValue
+    ) {
+      captured_end_hour <<- end_hour
+      fake_grid
+    },
+    
+    .package = "AirExposure"
+  )
+  
+  alternative_trajectories(
+    origin = "-31.4201,-64.1888",
+    dest = "-31.4300,-64.2000",
+    mode = "car",
+    dir = tempdir(),
+    key = "fake",
+    output = "df",
+    hours = "2019-08-01 08:00:00",
+    grid_tz = "America/Argentina/Mendoza",
+    gridID = "ID",
+    shapeValue = "value",
+    units = "ug/m3",
+    pollutant = "PM2.5"
+  )
+  
+  expect_equal(
+    captured_end_hour,
+    as.POSIXct(
+      "2019-08-01 11:25:00",
+      tz = "UTC"
+    )
+  )
 })
