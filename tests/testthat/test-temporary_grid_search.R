@@ -322,3 +322,129 @@ test_that("fails when shapeValue column is not found", {
     "shapeValue"
   )
 })
+
+test_that("retrieves grids when an interval crosses an hour boundary", {
+  temp_folder <- tempfile()
+  dir.create(temp_folder)
+  
+  grid1 <- sf::st_as_sf(
+    data.frame(
+      ID = 1,
+      value = 10,
+      lon = -64,
+      lat = -31
+    ),
+    coords = c("lon", "lat"),
+    crs = 4326
+  )
+  
+  grid2 <- sf::st_as_sf(
+    data.frame(
+      ID = 1,
+      value = 20,
+      lon = -64,
+      lat = -31
+    ),
+    coords = c("lon", "lat"),
+    crs = 4326
+  )
+  
+  sf::st_write(
+    grid1,
+    file.path(temp_folder, "2019-08-01_0800.shp"),
+    delete_layer = TRUE,
+    quiet = TRUE
+  )
+  
+  sf::st_write(
+    grid2,
+    file.path(temp_folder, "2019-08-01_0900.shp"),
+    delete_layer = TRUE,
+    quiet = TRUE
+  )
+  
+  start_time <- lubridate::ymd_hms(
+    "2019-08-01 11:55:00",
+    tz = "UTC"
+  )
+  
+  end_time <- lubridate::ymd_hms(
+    "2019-08-01 12:17:00",
+    tz = "UTC"
+  )
+  
+  result <- temporary_grid_search(
+    start_hour = start_time,
+    end_hour = end_time,
+    dir = temp_folder,
+    grid_tz = "America/Argentina/Mendoza",
+    gridID = "ID",
+    shapeValue = "value"
+  )
+  
+  expect_s3_class(result, "sf")
+  expect_equal(result$value, 15)
+})
+
+test_that("retrieves grids when an interval crosses midnight", {
+  temp_folder <- tempfile()
+  dir.create(temp_folder)
+  
+  grid1 <- sf::st_as_sf(
+    data.frame(
+      ID = 1,
+      value = 10,
+      lon = -64,
+      lat = -31
+    ),
+    coords = c("lon", "lat"),
+    crs = 4326
+  )
+  
+  grid2 <- sf::st_as_sf(
+    data.frame(
+      ID = 1,
+      value = 20,
+      lon = -64,
+      lat = -31
+    ),
+    coords = c("lon", "lat"),
+    crs = 4326
+  )
+  
+  sf::st_write(
+    grid1,
+    file.path(temp_folder, "2019-08-01_2300.shp"),
+    delete_layer = TRUE,
+    quiet = TRUE
+  )
+  
+  sf::st_write(
+    grid2,
+    file.path(temp_folder, "2019-08-02_0000.shp"),
+    delete_layer = TRUE,
+    quiet = TRUE
+  )
+  
+  start_time <- lubridate::ymd_hms(
+    "2019-08-02 02:50:00",
+    tz = "UTC"
+  )
+  
+  end_time <- lubridate::ymd_hms(
+    "2019-08-02 03:20:00",
+    tz = "UTC"
+  )
+  
+  result <- temporary_grid_search(
+    start_hour = start_time,
+    end_hour = end_time,
+    dir = temp_folder,
+    grid_tz = "America/Argentina/Mendoza",
+    gridID = "ID",
+    shapeValue = "value"
+  )
+  
+  expect_s3_class(result, "sf")
+  expect_equal(result$value, 15)
+})

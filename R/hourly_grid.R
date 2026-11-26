@@ -96,15 +96,9 @@ hourly_grid <- function(hour, dir, grid_tz) {
     )
   }
 
-  file <- table_files[searched_hour]
-
-  name_file <- paste(
-    substr(file, 1, 10),
-    "_",
-    substr(file, 12, 13),
-    substr(file, 15, 16),
-    ".shp",
-    sep = ""
+  name_file <- format(
+    input_hour_grid,
+    format = "%Y-%m-%d_%H00.shp"
   )
 
   return(name_file)
