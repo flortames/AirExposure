@@ -124,3 +124,53 @@ test_that("fails when no shapefile matches requested local hour", {
     "No shapefile was found for the requested date and hour"
   )
 })
+
+test_that("grid selection does not depend on system time zone", {
+  temp_folder <- tempfile()
+  dir.create(temp_folder)
+  
+  file.create(
+    file.path(
+      temp_folder,
+      "2019-08-01_0800.shp"
+    )
+  )
+  
+  hour <- lubridate::ymd_hms(
+    "2019-08-01 11:00:00",
+    tz = "UTC"
+  )
+  
+  result_utc <- withr::with_timezone(
+    "UTC",
+    hourly_grid(
+      hour = hour,
+      dir = temp_folder,
+      grid_tz = "America/Argentina/Mendoza"
+    )
+  )
+  
+  result_tokyo <- withr::with_timezone(
+    "Asia/Tokyo",
+    hourly_grid(
+      hour = hour,
+      dir = temp_folder,
+      grid_tz = "America/Argentina/Mendoza"
+    )
+  )
+  
+  expect_equal(
+    result_utc,
+    "2019-08-01_0800.shp"
+  )
+  
+  expect_equal(
+    result_tokyo,
+    "2019-08-01_0800.shp"
+  )
+  
+  expect_equal(
+    result_utc,
+    result_tokyo
+  )
+})
