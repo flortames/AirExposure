@@ -3,9 +3,13 @@
 #' Searches a directory containing hourly pollutant grid shapefiles and
 #' returns the filename corresponding to the requested date and hour.
 #'
-#' @param hour Character. Date and time used to identify the grid file.
-#' @param time_format Character. Format used to parse `hour`.
+#' @param hour Date and time used to identify the grid file. A `POSIXct` or
+#'   `POSIXlt` object is recommended. Character values with an explicit
+#'   time-zone offset may also be supplied.
 #' @param dir Character. Directory containing the hourly grid shapefiles.
+#' @param grid_tz Character. Time zone represented by the hourly grid
+#'   filenames, specified as an Olson time-zone name such as
+#'   `"America/Argentina/Mendoza"`.
 #'
 #' @details
 #' Hourly grid shapefiles are expected to follow the naming convention
@@ -25,25 +29,35 @@
 #'
 #' @export
 
-hourly_grid <- function(hour, time_format, dir) {
-  if (!is.character(hour) || length(hour) != 1) {
-    stop("'hour' must be a character string.")
-  }
-
+hourly_grid <- function(hour, dir, grid_tz) {
   if (!dir.exists(dir)) {
     stop("Directory specified in 'dir' does not exist.")
   }
-
-  input_hour <- as.POSIXct(
-    strptime(hour, format = time_format)
-  )
-
-  if (is.na(input_hour)) {
-    stop("'hour' could not be parsed using 'time_format'.")
+  if (
+    !is.character(grid_tz) ||
+    length(grid_tz) != 1 ||
+    is.na(grid_tz) ||
+    grid_tz == "" ||
+    !grid_tz %in% OlsonNames()
+  ) {
+    stop(
+      "'grid_tz' must be a recognized Olson time-zone name.",
+      call. = FALSE
+    )
   }
 
-  hour_exposure <- lubridate::hour(input_hour)
-  exposure_day <- lubridate::date(input_hour)
+  input_hour_utc <- normalize_datetime(
+    hour,
+    arg = "hour"
+  )
+  
+  input_hour_grid <- lubridate::with_tz(
+    input_hour_utc,
+    tzone = grid_tz
+  )
+  
+  hour_exposure <- lubridate::hour(input_hour_grid)
+  exposure_day <- lubridate::date(input_hour_grid)
 
   # List available shapefiles
 

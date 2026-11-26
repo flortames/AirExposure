@@ -1,88 +1,126 @@
 test_that("fails when directory does not exist", {
+  hour <- lubridate::ymd_hms(
+    "2019-08-01 11:00:00",
+    tz = "UTC"
+  )
+  
   expect_error(
     hourly_grid(
-      hour = "2019-08-01 08:00:00",
-      time_format = "%Y-%m-%d %H:%M:%S",
-      dir = "fake_directory"
+      hour = hour,
+      dir = "fake_directory",
+      grid_tz = "America/Argentina/Mendoza"
     ),
     "does not exist"
+  )
+})
+
+test_that("fails when grid_tz is not recognized", {
+  hour <- lubridate::ymd_hms(
+    "2019-08-01 11:00:00",
+    tz = "UTC"
+  )
+  
+  expect_error(
+    hourly_grid(
+      hour = hour,
+      dir = tempdir(),
+      grid_tz = "Mendoza"
+    ),
+    "recognized Olson time-zone name"
   )
 })
 
 test_that("fails when hour cannot be parsed", {
   expect_error(
     hourly_grid(
-      hour = "invalid_date",
-      time_format = "%Y-%m-%d %H:%M:%S",
-      dir = tempdir()
+      hour = "not-a-dateZ",
+      dir = tempdir(),
+      grid_tz = "America/Argentina/Mendoza"
     ),
     "could not be parsed"
+  )
+})
+
+test_that("hour must be a valid date-time input", {
+  expect_error(
+    hourly_grid(
+      hour = 123,
+      dir = tempdir(),
+      grid_tz = "America/Argentina/Mendoza"
+    ),
+    "must be a POSIXct, POSIXlt, or character value"
   )
 })
 
 test_that("fails when no shapefiles are found", {
   temp_folder <- tempfile()
   dir.create(temp_folder)
-
+  
+  hour <- lubridate::ymd_hms(
+    "2019-08-01 11:00:00",
+    tz = "UTC"
+  )
+  
   expect_error(
     hourly_grid(
-      hour = "2019-08-01 08:00:00",
-      time_format = "%Y-%m-%d %H:%M:%S",
-      dir = temp_folder
+      hour = hour,
+      dir = temp_folder,
+      grid_tz = "America/Argentina/Mendoza"
     ),
-    "No shapefiles"
+    "No shapefiles were found"
   )
 })
 
-test_that("returns matching shapefile name", {
+test_that("converts UTC to grid time zone and returns matching shapefile", {
   temp_folder <- tempfile()
   dir.create(temp_folder)
-
+  
   file.create(
     file.path(
       temp_folder,
       "2019-08-01_0800.shp"
     )
   )
-
+  
+  hour <- lubridate::ymd_hms(
+    "2019-08-01 11:00:00",
+    tz = "UTC"
+  )
+  
+  result <- hourly_grid(
+    hour = hour,
+    dir = temp_folder,
+    grid_tz = "America/Argentina/Mendoza"
+  )
+  
   expect_equal(
-    hourly_grid(
-      hour = "2019-08-01 08:00:00",
-      time_format = "%Y-%m-%d %H:%M:%S",
-      dir = temp_folder
-    ),
+    result,
     "2019-08-01_0800.shp"
   )
 })
 
-test_that("hour must be a character string", {
-  expect_error(
-    hourly_grid(
-      hour = 123,
-      time_format = "%Y-%m-%d %H:%M:%S",
-      dir = tempdir()
-    ),
-    "character string"
-  )
-})
-
-test_that("fails when no shapefile matches requested hour", {
+test_that("fails when no shapefile matches requested local hour", {
   temp_folder <- tempfile()
   dir.create(temp_folder)
-
+  
   file.create(
     file.path(
       temp_folder,
       "2019-08-01_0900.shp"
     )
   )
-
+  
+  hour <- lubridate::ymd_hms(
+    "2019-08-01 11:00:00",
+    tz = "UTC"
+  )
+  
   expect_error(
     hourly_grid(
-      hour = "2019-08-01 08:00:00",
-      time_format = "%Y-%m-%d %H:%M:%S",
-      dir = temp_folder
+      hour = hour,
+      dir = temp_folder,
+      grid_tz = "America/Argentina/Mendoza"
     ),
-    "No shapefile was found"
+    "No shapefile was found for the requested date and hour"
   )
 })

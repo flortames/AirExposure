@@ -144,15 +144,10 @@ temporary_grid_search <- function(
   grids <- vector("list", length(requested_hours))
 
   for (i in seq_along(requested_hours)) {
-    hour_text <- format(
-      requested_hours[i],
-      format = "%Y-%m-%d %H:%M:%S"
-    )
-
     grid_name <- hourly_grid(
-      hour = hour_text,
-      time_format = "%Y-%m-%d %H:%M:%S",
-      dir = dir
+      hour = requested_hours[i],
+      dir = dir,
+      grid_tz = grid_tz
     )
 
     grid_path <- file.path(dir, grid_name)
